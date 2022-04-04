@@ -1,10 +1,10 @@
 package com.example.betterclock
 
+import android.app.Activity
 import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
 import java.time.LocalTime
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : Activity() {
 
     private lateinit var alarmsView: AlarmsView
 

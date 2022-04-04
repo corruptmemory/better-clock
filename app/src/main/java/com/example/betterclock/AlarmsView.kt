@@ -1,13 +1,12 @@
 package com.example.betterclock
 
+import android.annotation.SuppressLint
 import android.app.TimePickerDialog
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
-import android.graphics.drawable.ColorDrawable
 import android.util.AttributeSet
-import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.LinearLayout
 import android.widget.ScrollView
@@ -55,6 +54,7 @@ class Border {
     }
 }
 
+@SuppressLint("AppCompatCustomView")
 class BorderedTextView : TextView {
     private val paint: Paint = Paint()
     var borders: Array<Border>? = null
@@ -119,6 +119,7 @@ class BorderedTextView : TextView {
 
 class AlarmsView(alarms: Array<LocalTime>, context: Context?) : ScrollView(context) {
 
+    @SuppressLint("ResourceType")
     fun buildViews(entries: Array<AlarmEntry>) {
         for (a in entries) {
             val card = CardView(context)
@@ -146,7 +147,7 @@ class AlarmsView(alarms: Array<LocalTime>, context: Context?) : ScrollView(conte
             tv.textSize = 10.dpf
             tv.text = t
             tv.setTextColor(context.getColor(androidx.appcompat.R.color.abc_primary_text_material_light))
-            tv.setOnClickListener { v ->
+            tv.setOnClickListener { _ ->
                 val dialog = TimePickerDialog(
                     context,
                     { _, h: Int, m: Int ->
@@ -166,7 +167,7 @@ class AlarmsView(alarms: Array<LocalTime>, context: Context?) : ScrollView(conte
             expando.borders = BorderedTextView.allBorders(1.dpf, Color.WHITE)
             expando.textSize = 10.dpf
             expando.setTextColor(context.getColor(androidx.appcompat.R.color.abc_primary_text_material_light))
-            expando.setOnClickListener { v ->
+            expando.setOnClickListener { _ ->
                 expandCurrent()
             }
             a.expando = expando
@@ -195,7 +196,10 @@ class AlarmsView(alarms: Array<LocalTime>, context: Context?) : ScrollView(conte
             addView(ll)
             ll.orientation = LinearLayout.VERTICAL
             for (e in entries) {
-                val lp = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+                val lp = LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+                )
                 lp.setMargins(0.dp, 3.dp, 0.dp, 4.dp)
                 e.card.layoutParams = lp
                 ll.addView(e.card)
