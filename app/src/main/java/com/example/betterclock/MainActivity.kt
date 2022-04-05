@@ -4,11 +4,14 @@ import android.app.Activity
 import android.graphics.Color
 import android.graphics.Typeface
 import android.os.Bundle
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.widget.Toolbar
+import androidx.constraintlayout.widget.ConstraintLayout
 import java.time.LocalTime
 
 class MainActivity : Activity() {
 
-    private lateinit var alarmsView: NewAlarmsView
+    private lateinit var appView: AppView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -73,11 +76,10 @@ class MainActivity : Activity() {
             LocalTime.now(),
         )
 
-        val alarms: Array<Alarm> = times.map { t -> Alarm.empty(t) }.toTypedArray()
 
-        alarmsView = NewAlarmsView(globals = globals, updateSink = { _ -> }, alarms = alarms, context = this)
-//        alarmsView = AlarmsView(times, this)
-        setContentView(alarmsView)
+        val alarms: Array<Alarm> = times.map { t -> Alarm.empty(t) }.toTypedArray()
+        appView = AppView(globals = globals, alarms = alarms, this)
+        setContentView(appView)
     }
 
 
