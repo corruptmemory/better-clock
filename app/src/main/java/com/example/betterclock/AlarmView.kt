@@ -1,5 +1,6 @@
 package com.example.betterclock
 
+import android.app.Activity
 import android.app.AlertDialog
 import android.content.Context
 import android.graphics.Canvas
@@ -174,7 +175,9 @@ class AlarmView : View {
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
-        val desiredWidth = 1080
+        val activity = (context as Activity)
+        val dm = activity.resources.displayMetrics
+        val desiredWidth = dm.widthPixels
         val desiredHeight: Int = if (expanded) {
             EXPANDED_HEIGHT.toInt()
         } else {

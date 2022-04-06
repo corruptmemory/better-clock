@@ -13,6 +13,13 @@ class MainActivity : Activity() {
 
     private lateinit var appView: AppView
 
+    private lateinit var defaultView: String
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.putString("defaultView", defaultView)
+        super.onSaveInstanceState(outState)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -76,9 +83,29 @@ class MainActivity : Activity() {
             LocalTime.now(),
         )
 
+        fun saveDefaultView(s: String) {
+            defaultView = s
+        }
+
+        defaultView = if (savedInstanceState != null) {
+            val sds = savedInstanceState.get("defaultView")
+            if (sds != null) {
+                sds as String
+            } else {
+                "Home"
+            }
+        } else {
+            "Home"
+        }
 
         val alarms: Array<Alarm> = times.map { t -> Alarm.empty(t) }.toTypedArray()
-        appView = AppView(globals = globals, alarms = alarms, this)
+        appView = AppView(
+            defaultView = defaultView,
+            updateDefaultView = { s -> saveDefaultView(s) },
+            globals = globals,
+            alarms = alarms,
+            this
+        )
         setContentView(appView)
     }
 
