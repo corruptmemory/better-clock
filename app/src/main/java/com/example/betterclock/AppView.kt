@@ -1,5 +1,6 @@
 package com.example.betterclock
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.util.AttributeSet
@@ -14,7 +15,7 @@ class AppView : ViewGroup {
     private val globals: Globals
     private val toolbar: Toolbar = Toolbar(context)
     private val bottomNav: BottomNavigationView = BottomNavigationView(context)
-    val alarms: Array<Alarm>
+    val store: DataStore
     private lateinit var alarmsView: AlarmsView
     private val homeView: TextView = TextView(context)
     private val timersView: TextView = TextView(context)
@@ -27,7 +28,7 @@ class AppView : ViewGroup {
         defaultView: String,
         updateDefaultView: (String) -> Unit,
         globals: Globals,
-        alarms: Array<Alarm>,
+        store: DataStore,
         context: Context?,
         attrs: AttributeSet?,
         defStyle: Int
@@ -38,7 +39,7 @@ class AppView : ViewGroup {
     ) {
         this.defaultView = defaultView
         this.updateDefaultView = updateDefaultView
-        this.alarms = alarms
+        this.store = store
         this.globals = globals
         init()
     }
@@ -47,13 +48,13 @@ class AppView : ViewGroup {
         defaultView: String,
         updateDefaultView: (String) -> Unit,
         globals: Globals,
-        alarms: Array<Alarm>,
+        store: DataStore,
         context: Context?,
         attrs: AttributeSet?
     ) : super(context, attrs) {
         this.defaultView = defaultView
         this.updateDefaultView = updateDefaultView
-        this.alarms = alarms
+        this.store = store
         this.globals = globals
         init()
     }
@@ -62,22 +63,23 @@ class AppView : ViewGroup {
         defaultView: String,
         updateDefaultView: (String) -> Unit,
         globals: Globals,
-        alarms: Array<Alarm>,
+        store: DataStore,
         context: Context?
     ) : super(context) {
         this.defaultView = defaultView
         this.updateDefaultView = updateDefaultView
-        this.alarms = alarms
+        this.store = store
         this.globals = globals
         init()
     }
 
+    @SuppressLint("ResourceType")
     fun init() {
         val activity = (context as Activity)
         val dm = activity.resources.displayMetrics
         displayWidth = dm.widthPixels
         toolbar.setBackgroundColor(globals.backgroundColor)
-        alarmsView = AlarmsView(globals, { _ -> }, alarms, context)
+        alarmsView = AlarmsView(globals, { _ -> }, store, context)
         alarmsView.id = 2
         bottomNav.setBackgroundColor(globals.backgroundColor)
         bottomNav.z = alarmsView.z + 1.0F

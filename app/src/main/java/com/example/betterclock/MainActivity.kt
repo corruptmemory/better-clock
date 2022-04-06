@@ -4,10 +4,8 @@ import android.app.Activity
 import android.graphics.Color
 import android.graphics.Typeface
 import android.os.Bundle
-import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.widget.Toolbar
-import androidx.constraintlayout.widget.ConstraintLayout
-import java.time.LocalTime
+import java.util.*
+
 
 class MainActivity : Activity() {
 
@@ -32,56 +30,7 @@ class MainActivity : Activity() {
             is24HourFormat = android.text.format.DateFormat.is24HourFormat(this)
         )
 
-        val times = arrayOf(
-            LocalTime.now(),
-            LocalTime.now(),
-            LocalTime.now(),
-            LocalTime.now(),
-            LocalTime.now(),
-            LocalTime.now(),
-            LocalTime.now(),
-            LocalTime.now(),
-            LocalTime.now(),
-            LocalTime.now(),
-            LocalTime.now(),
-            LocalTime.now(),
-            LocalTime.now(),
-            LocalTime.now(),
-            LocalTime.now(),
-            LocalTime.now(),
-            LocalTime.now(),
-            LocalTime.now(),
-            LocalTime.now(),
-            LocalTime.now(),
-            LocalTime.now(),
-            LocalTime.now(),
-            LocalTime.now(),
-            LocalTime.now(),
-            LocalTime.now(),
-            LocalTime.now(),
-            LocalTime.now(),
-            LocalTime.now(),
-            LocalTime.now(),
-            LocalTime.now(),
-            LocalTime.now(),
-            LocalTime.now(),
-            LocalTime.now(),
-            LocalTime.now(),
-            LocalTime.now(),
-            LocalTime.now(),
-            LocalTime.now(),
-            LocalTime.now(),
-            LocalTime.now(),
-            LocalTime.now(),
-            LocalTime.now(),
-            LocalTime.now(),
-            LocalTime.now(),
-            LocalTime.now(),
-            LocalTime.now(),
-            LocalTime.now(),
-            LocalTime.now(),
-            LocalTime.now(),
-        )
+        val store = DataStores.inMemoryTestStore()
 
         fun saveDefaultView(s: String) {
             defaultView = s
@@ -98,12 +47,11 @@ class MainActivity : Activity() {
             "Home"
         }
 
-        val alarms: Array<Alarm> = times.map { t -> Alarm.empty(t) }.toTypedArray()
         appView = AppView(
             defaultView = defaultView,
             updateDefaultView = { s -> saveDefaultView(s) },
             globals = globals,
-            alarms = alarms,
+            store = store,
             this
         )
         setContentView(appView)

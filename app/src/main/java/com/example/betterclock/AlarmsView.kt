@@ -22,7 +22,7 @@ class NewAlarmEntry(
 class AlarmsView(
     val globals: Globals,
     val updateSink: AlarmUpdateSink,
-    val alarms: Array<Alarm>,
+    store: DataStore,
     context: Context?
 ) : ScrollView(context) {
 
@@ -35,6 +35,7 @@ class AlarmsView(
 
     init {
         if (context != null) {
+            val alarms = store.alarmStore().list()
             val entries = Array(alarms.size) { i -> NewAlarmEntry(alarms[i]) }
             buildViews(entries)
             setBackgroundColor(globals.backgroundColor)
