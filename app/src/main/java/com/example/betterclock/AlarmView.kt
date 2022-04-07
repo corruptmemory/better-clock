@@ -1,17 +1,15 @@
 package com.example.betterclock
 
 import android.app.Activity
-import android.app.AlertDialog
 import android.content.Context
 import android.graphics.Canvas
-import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Rect
-import android.util.AttributeSet
+import android.util.Log
 import android.view.MotionEvent
 import android.view.View
-import java.time.LocalTime
-import java.util.*
+import android.view.ViewGroup
+import android.widget.LinearLayout
 
 typealias AlarmUpdateSink = (Alarm) -> Unit
 
@@ -23,6 +21,9 @@ class AlarmView(val globals: Globals,
     private var expanded: Boolean = false
     private val timeRect: Rect = Rect()
 
+    var onTimeClicked: ((AlarmView) -> Unit)? = null
+    var onExpandClicked: ((AlarmView) -> Unit)? = null
+
     companion object {
         val CORNER_RADIUS: Float = 20.dpf
         val COLLAPSED_HEIGHT: Float = 60.dpf
@@ -32,18 +33,30 @@ class AlarmView(val globals: Globals,
         val ALARM_TEXT_Y: Float = 20.dpf
     }
 
+    fun doChangeSize() {
+        when (val v = parent) {
+            is ViewGroup -> {
+                val lp = layoutParams
+                v.updateViewLayout(this, lp)
+            }
+        }
+    }
+
     fun expand() {
         expanded = true
+        doChangeSize()
         invalidate()
     }
 
     fun collapse() {
         expanded = false
+        doChangeSize()
         invalidate()
     }
 
     fun toggle() {
         expanded = !expanded
+        doChangeSize()
         invalidate()
     }
 
@@ -54,15 +67,14 @@ class AlarmView(val globals: Globals,
     override fun dispatchTouchEvent(event: MotionEvent?): Boolean {
         if (event != null) {
             if (timeRect.contains(event.x.toInt(), event.y.toInt())) {
-                val d = AlertDialog.Builder(context)
-                d.setTitle("Clicked!")
-                d.show()
+                onTimeClicked?.let { it(this) }
             }
         }
         return super.dispatchTouchEvent(event)
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+        Log.d("AlarmView","in onMeasure")
         val activity = (context as Activity)
         val dm = activity.resources.displayMetrics
         val desiredWidth = dm.widthPixels
@@ -111,7 +123,6 @@ class AlarmView(val globals: Globals,
         //MUST CALL THIS
         setMeasuredDimension(width, height)
     }
-
 
     private fun drawCollapsed(canvas: Canvas) {
         paint.color = globals.cardBackgroundColor

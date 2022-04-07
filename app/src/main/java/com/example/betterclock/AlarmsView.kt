@@ -1,11 +1,12 @@
 package com.example.betterclock
 
 import android.annotation.SuppressLint
+import android.app.TimePickerDialog
 import android.content.Context
 import android.widget.LinearLayout
 import android.widget.ScrollView
 
-class NewAlarmEntry(
+class AlarmEntry(
     var alarm: Alarm,
 ) {
     lateinit var view: AlarmView
@@ -23,34 +24,48 @@ class AlarmsView(
     val globals: Globals,
     val updateSink: AlarmUpdateSink,
     store: DataStore,
-    context: Context?
+    context: Context
 ) : ScrollView(context) {
 
-    @SuppressLint("ResourceType")
-    fun buildViews(entries: Array<NewAlarmEntry>) {
+    private val ll: LinearLayout
+
+    private fun buildViews(entries: Array<AlarmEntry>) {
         for (a in entries) {
             a.view = AlarmView(globals, a.alarm, updateSink, context)
+            a.view.onTimeClicked = { v ->
+                for (cv in entries) {
+                    if (cv.view != v) {
+                        cv.view.collapse()
+                    }
+                }
+                v.expand()
+                val tp = TimePickerDialog(context,
+                    { _, h: Int, m: Int ->
+                        v.alarm.time = AlarmTime(h, m)
+                        v.invalidate()
+                    }, v.alarm.time.hour, v.alarm.time.minute, globals.is24HourFormat
+                )
+                tp.show()
+            }
         }
     }
 
     init {
-        if (context != null) {
-            val alarms = store.alarmStore().list()
-            val entries = Array(alarms.size) { i -> NewAlarmEntry(alarms[i]) }
-            buildViews(entries)
-            setBackgroundColor(globals.backgroundColor)
-            val ll = LinearLayout(context)
-            addView(ll)
-            ll.orientation = LinearLayout.VERTICAL
-            for (e in entries) {
-                val lp = LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.MATCH_PARENT,
-                    LinearLayout.LayoutParams.WRAP_CONTENT
-                )
-                lp.setMargins(5.dp, 3.dp, 5.dp, 4.dp)
-                e.view.layoutParams = lp
-                ll.addView(e.view)
-            }
+        val alarms = store.alarmStore().list()
+        val entries = Array(alarms.size) { i -> AlarmEntry(alarms[i]) }
+        buildViews(entries)
+        setBackgroundColor(globals.backgroundColor)
+        ll = LinearLayout(context)
+        addView(ll)
+        ll.orientation = LinearLayout.VERTICAL
+        for (e in entries) {
+            val lp = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            )
+            lp.setMargins(5.dp, 3.dp, 5.dp, 4.dp)
+            e.view.layoutParams = lp
+            ll.addView(e.view)
         }
     }
 }
