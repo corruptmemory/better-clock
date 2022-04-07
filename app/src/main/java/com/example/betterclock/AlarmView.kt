@@ -15,10 +15,10 @@ import java.util.*
 
 typealias AlarmUpdateSink = (Alarm) -> Unit
 
-class AlarmView : View {
-    private val alarm: Alarm
-    private val updateSink: AlarmUpdateSink
-    private val globals: Globals
+class AlarmView(val globals: Globals,
+                val alarm: Alarm,
+                val updateSink: AlarmUpdateSink,
+                context: Context?) : View(context) {
     private val paint: Paint = Paint()
     private var expanded: Boolean = false
     private val timeRect: Rect = Rect()
@@ -45,46 +45,6 @@ class AlarmView : View {
     fun toggle() {
         expanded = !expanded
         invalidate()
-    }
-
-    constructor(
-        globals: Globals,
-        alarm: Alarm,
-        updateSink: AlarmUpdateSink,
-        context: Context?,
-        attrs: AttributeSet?,
-        defStyle: Int
-    ) : super(
-        context,
-        attrs,
-        defStyle
-    ) {
-        this.alarm = alarm
-        this.updateSink = updateSink
-        this.globals = globals
-    }
-
-    constructor(
-        globals: Globals,
-        alarm: Alarm,
-        updateSink: AlarmUpdateSink,
-        context: Context?,
-        attrs: AttributeSet?
-    ) : super(context, attrs) {
-        this.alarm = alarm
-        this.updateSink = updateSink
-        this.globals = globals
-    }
-
-    constructor(
-        globals: Globals,
-        alarm: Alarm,
-        updateSink: AlarmUpdateSink,
-        context: Context?
-    ) : super(context) {
-        this.alarm = alarm
-        this.updateSink = updateSink
-        this.globals = globals
     }
 
     override fun isClickable(): Boolean {
@@ -168,7 +128,7 @@ class AlarmView : View {
         paint.typeface = globals.alarmTypeface
         paint.color = globals.primaryTextColor
         paint.textSize = ALARM_TEXT_SIZE
-        val timeString = globals.formatTime(alarm.time)
+        val timeString = alarm.time.format(globals.is24HourFormat)
         paint.getTextBounds(timeString, 0, timeString.length, timeRect)
         timeRect.offsetTo(ALARM_TEXT_X.toInt(), ALARM_TEXT_Y.toInt() - timeRect.height())
         canvas.drawText(timeString, ALARM_TEXT_X, ALARM_TEXT_Y, paint)
@@ -189,7 +149,7 @@ class AlarmView : View {
         paint.typeface = globals.alarmTypeface
         paint.color = globals.primaryTextColor
         paint.textSize = ALARM_TEXT_SIZE
-        val timeString = globals.formatTime(alarm.time)
+        val timeString = alarm.time.format(globals.is24HourFormat)
         paint.getTextBounds(timeString, 0, timeString.length, timeRect)
         timeRect.offsetTo(ALARM_TEXT_X.toInt(), ALARM_TEXT_Y.toInt() - timeRect.height())
         canvas.drawText(timeString, ALARM_TEXT_X, ALARM_TEXT_Y, paint)

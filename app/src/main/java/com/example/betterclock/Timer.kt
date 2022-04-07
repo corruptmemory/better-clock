@@ -1,5 +1,9 @@
 package com.example.betterclock
 
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.decodeFromString
 import java.time.Duration
 import java.util.*
 
@@ -34,11 +38,12 @@ object TimerStates {
     }
 }
 
-
 class Timer(
     val id: String,
     val duration: Duration
 ) {
+    @Serializable
+    private class TimerSaved(val id: String, val duration: Long)
     private var internalState: TimerState = TimerStates.Stopped(duration.toNanos())
 
     fun stop() {
@@ -50,6 +55,11 @@ class Timer(
             is TimerStates.Running -> internalState = TimerStates.Paused((internalState as TimerStates.Running).remainingNanos())
             else -> {}
         }
+    }
+
+    fun toJson(): String {
+        val ts = TimerSaved(id, duration.toNanos())
+        return Json.encodeToString(ts)
     }
 
     fun start() {
@@ -67,6 +77,11 @@ class Timer(
             val uuid = UUID.randomUUID()
             val now = System.nanoTime()
             return "timer-$uuid-$now"
+        }
+
+        fun fromJson(jsonStr: String): Timer {
+            val temp = Json.decodeFromString<TimerSaved>(jsonStr)
+            return Timer(temp.id, Duration.ofNanos(temp.duration))
         }
 
         fun new(duration: Duration, id: String = genTimerID()): Timer =
