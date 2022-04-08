@@ -2,24 +2,50 @@ package com.example.betterclock
 
 import android.app.Activity
 import android.content.Context
-import android.graphics.Canvas
-import android.graphics.Paint
-import android.graphics.Rect
+import android.graphics.*
+import android.graphics.drawable.Drawable
 import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
+import android.widget.Switch
+import android.widget.TextView
 
-typealias AlarmUpdateSink = (Alarm) -> Unit
-
-class AlarmView(val globals: Globals,
-                val alarm: Alarm,
-                val updateSink: AlarmUpdateSink,
-                context: Context?) : View(context) {
+class AlarmView(
+    val globals: Globals,
+    val alarm: Alarm,
+    val alarmStore: AlarmStore,
+    context: Context,
+    val collapseDrawable: Drawable = context.getDrawable(R.drawable.ic_collapse)!!
+) : ViewGroup(context) {
     private val paint: Paint = Paint()
     private var expanded: Boolean = false
     private val timeRect: Rect = Rect()
+    private val expandoRect: Rect =
+        Rect(0, 0, collapseDrawable.minimumWidth, collapseDrawable.minimumHeight)
+    private val enabledSwitch = Switch(context)
+
+    init {
+        val ts = "12:59 pm"
+        paint.typeface = globals.alarmTypeface
+        paint.color = globals.primaryTextColor
+        paint.textSize = ALARM_TEXT_SIZE
+        paint.getTextBounds(ts , 0, "12:59 pm".length, timeRect)
+        timeRect.offsetTo(ALARM_TEXT_X.toInt(), ALARM_TEXT_Y.toInt() - timeRect.height())
+        this.setWillNotDraw(false)
+        val m = arrayOf(
+            -1F, 0F, 0F, 0F, 255F,
+            0F, -1F, 0F, 0F, 255F,
+            0F, 0F, -1F, 0F, 255F,
+            0F, 0F, 0F, 1F, 0F
+        )
+        val cm = ColorMatrix(m.toFloatArray())
+        val cf = ColorMatrixColorFilter(cm)
+        collapseDrawable.colorFilter = cf
+        enabledSwitch.isChecked = alarm.enabled
+        addView(enabledSwitch)
+    }
 
     var onTimeClicked: ((AlarmView) -> Unit)? = null
     var onExpandClicked: ((AlarmView) -> Unit)? = null
@@ -60,21 +86,30 @@ class AlarmView(val globals: Globals,
         invalidate()
     }
 
+    fun setTime(time: AlarmTime) {
+        alarm.time = time
+        alarmStore.addOrUpdate(alarm.clone())
+        invalidate()
+    }
+
     override fun isClickable(): Boolean {
         return true
     }
 
     override fun dispatchTouchEvent(event: MotionEvent?): Boolean {
         if (event != null) {
-            if (timeRect.contains(event.x.toInt(), event.y.toInt())) {
+            val x = event.x.toInt()
+            val y = event.y.toInt()
+            if (timeRect.contains(x, y)) {
                 onTimeClicked?.let { it(this) }
+            } else if (expandoRect.contains(x, y)) {
+                onExpandClicked?.let { it(this) }
             }
         }
         return super.dispatchTouchEvent(event)
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
-        Log.d("AlarmView","in onMeasure")
         val activity = (context as Activity)
         val dm = activity.resources.displayMetrics
         val desiredWidth = dm.widthPixels
@@ -120,8 +155,26 @@ class AlarmView(val globals: Globals,
             desiredHeight
         }
 
+        expandoRect.offsetTo(
+            width - collapseDrawable.minimumWidth - 20.dp,
+            timeRect.centerY()
+        )
+        collapseDrawable.bounds = expandoRect
+
+
         //MUST CALL THIS
         setMeasuredDimension(width, height)
+    }
+
+    private fun drawExpando(canvas: Canvas) {
+        canvas.save()
+        canvas.rotate(180F, expandoRect.exactCenterX(), expandoRect.exactCenterY())
+        collapseDrawable.draw(canvas)
+        canvas.restore()
+    }
+
+    private fun drawCollapso(canvas: Canvas) {
+        collapseDrawable.draw(canvas)
     }
 
     private fun drawCollapsed(canvas: Canvas) {
@@ -140,9 +193,8 @@ class AlarmView(val globals: Globals,
         paint.color = globals.primaryTextColor
         paint.textSize = ALARM_TEXT_SIZE
         val timeString = alarm.time.format(globals.is24HourFormat)
-        paint.getTextBounds(timeString, 0, timeString.length, timeRect)
-        timeRect.offsetTo(ALARM_TEXT_X.toInt(), ALARM_TEXT_Y.toInt() - timeRect.height())
         canvas.drawText(timeString, ALARM_TEXT_X, ALARM_TEXT_Y, paint)
+        drawExpando(canvas)
     }
 
     private fun drawExpanded(canvas: Canvas) {
@@ -164,6 +216,7 @@ class AlarmView(val globals: Globals,
         paint.getTextBounds(timeString, 0, timeString.length, timeRect)
         timeRect.offsetTo(ALARM_TEXT_X.toInt(), ALARM_TEXT_Y.toInt() - timeRect.height())
         canvas.drawText(timeString, ALARM_TEXT_X, ALARM_TEXT_Y, paint)
+        drawCollapso(canvas)
     }
 
     override fun onDraw(canvas: Canvas?) {
@@ -175,5 +228,21 @@ class AlarmView(val globals: Globals,
                 drawCollapsed(canvas)
             }
         }
+    }
+
+    override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
+        val contentLeft = this.paddingLeft
+        val contentTop = this.paddingTop
+        val contentRight = this.measuredWidth - this.paddingRight
+        val contentBottom = this.measuredHeight - this.paddingBottom
+        val contentWidth = contentRight - contentLeft
+        val contentHeight = contentBottom - contentTop
+        enabledSwitch.measure(
+            MeasureSpec.makeMeasureSpec(this.measuredWidth, MeasureSpec.AT_MOST),
+            MeasureSpec.makeMeasureSpec(contentHeight, MeasureSpec.AT_MOST)
+        )
+        val enabledHeight = enabledSwitch.measuredHeight
+        val enabledWidth = enabledSwitch.measuredWidth
+        enabledSwitch.layout(expandoRect.right - enabledWidth, expandoRect.bottom + 10.dp, expandoRect.right, expandoRect.bottom + 10.dp + enabledHeight)
     }
 }

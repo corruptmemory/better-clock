@@ -79,7 +79,7 @@ class AppView : ViewGroup {
         val dm = activity.resources.displayMetrics
         displayWidth = dm.widthPixels
         toolbar.setBackgroundColor(globals.backgroundColor)
-        alarmsView = AlarmsView(globals, { _ -> }, store, context)
+        alarmsView = AlarmsView(globals, store.alarmStore(), store, context)
         alarmsView.id = 2
         bottomNav.setBackgroundColor(globals.backgroundColor)
         bottomNav.z = alarmsView.z + 1.0F

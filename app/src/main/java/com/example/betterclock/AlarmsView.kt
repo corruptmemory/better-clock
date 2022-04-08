@@ -1,6 +1,5 @@
 package com.example.betterclock
 
-import android.annotation.SuppressLint
 import android.app.TimePickerDialog
 import android.content.Context
 import android.widget.LinearLayout
@@ -22,7 +21,7 @@ class AlarmEntry(
 
 class AlarmsView(
     val globals: Globals,
-    val updateSink: AlarmUpdateSink,
+    val alarmStore: AlarmStore,
     store: DataStore,
     context: Context
 ) : ScrollView(context) {
@@ -31,7 +30,7 @@ class AlarmsView(
 
     private fun buildViews(entries: Array<AlarmEntry>) {
         for (a in entries) {
-            a.view = AlarmView(globals, a.alarm, updateSink, context)
+            a.view = AlarmView(globals, a.alarm, alarmStore, context)
             a.view.onTimeClicked = { v ->
                 for (cv in entries) {
                     if (cv.view != v) {
@@ -41,11 +40,18 @@ class AlarmsView(
                 v.expand()
                 val tp = TimePickerDialog(context,
                     { _, h: Int, m: Int ->
-                        v.alarm.time = AlarmTime(h, m)
-                        v.invalidate()
+                        v.setTime(AlarmTime(h, m))
                     }, v.alarm.time.hour, v.alarm.time.minute, globals.is24HourFormat
                 )
                 tp.show()
+            }
+            a.view.onExpandClicked = { v ->
+                for (cv in entries) {
+                    if (cv.view != v) {
+                        cv.view.collapse()
+                    }
+                }
+                v.toggle()
             }
         }
     }
