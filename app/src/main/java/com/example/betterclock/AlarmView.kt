@@ -22,6 +22,7 @@ class AlarmView(
     private val paint: Paint = Paint()
     private var expanded: Boolean = false
     private val timeRect: Rect = Rect()
+    private val regularTextHeight: Int
     private val expandoRect: Rect =
         Rect(0, 0, collapseDrawable.minimumWidth, collapseDrawable.minimumHeight)
     private val enabledSwitch = Switch(context)
@@ -31,7 +32,12 @@ class AlarmView(
         paint.typeface = globals.alarmTypeface
         paint.color = globals.primaryTextColor
         paint.textSize = ALARM_TEXT_SIZE
-        paint.getTextBounds(ts , 0, "12:59 pm".length, timeRect)
+        paint.getTextBounds(ts , 0, ts.length, timeRect)
+        paint.typeface = globals.primaryTypeface
+        paint.textSize = REGULAR_TEXT_SIZE
+        val regularTextRect = Rect()
+        paint.getTextBounds(ts , 0, ts.length, regularTextRect)
+        regularTextHeight = regularTextRect.height()
         timeRect.offsetTo(ALARM_TEXT_X.toInt(), ALARM_TEXT_Y.toInt() - timeRect.height())
         this.setWillNotDraw(false)
         val m = arrayOf(
@@ -44,7 +50,30 @@ class AlarmView(
         val cf = ColorMatrixColorFilter(cm)
         collapseDrawable.colorFilter = cf
         enabledSwitch.isChecked = alarm.enabled
+        enabledSwitch.setOnClickListener { _ -> this.toggleEnable() }
         addView(enabledSwitch)
+    }
+
+    private fun alarmDays(): String {
+        if (alarm.enabled) {
+            when {
+                alarm.allDaysOn() -> return "Every day"
+                alarm.allDaysOff() -> return "Today"
+                else -> {
+                    val l = mutableListOf<AlarmDay>()
+                    for (d in AlarmDay.values()) {
+                        if (alarm.days[d.idx]) {
+                            l.add(d)
+                        }
+                    }
+                    if (l.size == 1) {
+                        return l[0].long
+                    }
+                    return l.joinToString(separator = ", ") { v -> v.short }
+                }
+            }
+        }
+        return "Not scheduled"
     }
 
     var onTimeClicked: ((AlarmView) -> Unit)? = null
@@ -55,8 +84,10 @@ class AlarmView(
         val COLLAPSED_HEIGHT: Float = 60.dpf
         val EXPANDED_HEIGHT: Float = 200.dpf
         val ALARM_TEXT_SIZE: Float = 20.dpf
+        val REGULAR_TEXT_SIZE: Float = 10.dpf
         val ALARM_TEXT_X: Float = 13.dpf
         val ALARM_TEXT_Y: Float = 20.dpf
+        val SCHEDULE_TEXT_GAP: Float = 10.dpf
     }
 
     fun doChangeSize() {
@@ -80,7 +111,7 @@ class AlarmView(
         invalidate()
     }
 
-    fun toggle() {
+    fun toggleExpand() {
         expanded = !expanded
         doChangeSize()
         invalidate()
@@ -90,6 +121,11 @@ class AlarmView(
         alarm.time = time
         alarmStore.addOrUpdate(alarm.clone())
         invalidate()
+    }
+
+    private fun toggleEnable() {
+        alarm.toggle()
+        alarmStore.addOrUpdate(alarm.clone())
     }
 
     override fun isClickable(): Boolean {
@@ -194,6 +230,11 @@ class AlarmView(
         paint.textSize = ALARM_TEXT_SIZE
         val timeString = alarm.time.format(globals.is24HourFormat)
         canvas.drawText(timeString, ALARM_TEXT_X, ALARM_TEXT_Y, paint)
+        val scheduleText = alarmDays()
+        paint.typeface = globals.primaryTypeface
+        paint.color = globals.primaryTextColor
+        paint.textSize = REGULAR_TEXT_SIZE
+        canvas.drawText(scheduleText, ALARM_TEXT_X, ALARM_TEXT_Y + SCHEDULE_TEXT_GAP + regularTextHeight, paint)
         drawExpando(canvas)
     }
 

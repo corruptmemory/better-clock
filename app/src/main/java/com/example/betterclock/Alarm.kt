@@ -7,14 +7,14 @@ import kotlinx.serialization.decodeFromString
 import java.time.LocalTime
 import java.util.*
 
-enum class AlarmDay(val idx: Int) {
-    SUNDAY(0),
-    MONDAY(1),
-    TUESDAY(2),
-    WEDNESDAY(3),
-    THURSDAY(4),
-    FRIDAY(5),
-    SATURDAY(6),
+enum class AlarmDay(val idx: Int, val short: String, val long: String, val single: Char) {
+    SUNDAY(0, "Sun", "Sunday", 'S'),
+    MONDAY(1, "Mon", "Monday", 'M'),
+    TUESDAY(2, "Tue", "Tuesday", 'T'),
+    WEDNESDAY(3, "Wed", "Wednesday", 'W'),
+    THURSDAY(4, "Thu", "Thursday", 'T'),
+    FRIDAY(5, "Fri", "Friday", 'F'),
+    SATURDAY(6, "Sat", "Saturday", 'S'),
 }
 
 @Serializable
@@ -88,6 +88,22 @@ class Alarm(
 
     fun toggle(): Unit {
         enabled = !enabled
+    }
+
+    fun allDaysOn(): Boolean {
+        var r = true
+        for (d in days) {
+            r = r and d
+        }
+        return r
+    }
+
+    fun allDaysOff(): Boolean {
+        var r = false
+        for (d in days) {
+            r = r or d
+        }
+        return r
     }
 
     fun toJson(): String {

@@ -51,7 +51,7 @@ class AlarmsView(
                         cv.view.collapse()
                     }
                 }
-                v.toggle()
+                v.toggleExpand()
             }
         }
     }
