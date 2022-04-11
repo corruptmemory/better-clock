@@ -7,14 +7,14 @@ import kotlinx.serialization.decodeFromString
 import java.time.LocalTime
 import java.util.*
 
-enum class AlarmDay(val idx: Int, val short: String, val long: String, val single: Char) {
-    SUNDAY(0, "Sun", "Sunday", 'S'),
-    MONDAY(1, "Mon", "Monday", 'M'),
-    TUESDAY(2, "Tue", "Tuesday", 'T'),
-    WEDNESDAY(3, "Wed", "Wednesday", 'W'),
-    THURSDAY(4, "Thu", "Thursday", 'T'),
-    FRIDAY(5, "Fri", "Friday", 'F'),
-    SATURDAY(6, "Sat", "Saturday", 'S'),
+enum class AlarmDay(val idx: Int, val short: String, val long: String, val single: String) {
+    SUNDAY(0, "Sun", "Sunday", "S"),
+    MONDAY(1, "Mon", "Monday", "M"),
+    TUESDAY(2, "Tue", "Tuesday", "T"),
+    WEDNESDAY(3, "Wed", "Wednesday", "W"),
+    THURSDAY(4, "Thu", "Thursday", "T"),
+    FRIDAY(5, "Fri", "Friday", "F"),
+    SATURDAY(6, "Sat", "Saturday", "S"),
 }
 
 @Serializable
@@ -33,7 +33,7 @@ class AlarmTime(val hour: Int, val minute: Int) {
         return if (leadingZero) {
             String.format("%02d:%02d %s", h, minute, ampm)
         } else {
-            String.format("%2d:%02d %s", h, minute, ampm)
+            String.format("%d:%02d %s", h, minute, ampm)
         }
     }
 
@@ -41,7 +41,7 @@ class AlarmTime(val hour: Int, val minute: Int) {
         return if (leadingZero) {
             String.format("%02d:%02d %s", hour, minute)
         } else {
-            String.format("%2d:%02d %s", hour, minute)
+            String.format("%d:%02d %s", hour, minute)
         }
     }
 
@@ -99,9 +99,9 @@ class Alarm(
     }
 
     fun allDaysOff(): Boolean {
-        var r = false
+        var r = true
         for (d in days) {
-            r = r or d
+            r = r and !d
         }
         return r
     }
