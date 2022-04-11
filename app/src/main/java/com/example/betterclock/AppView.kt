@@ -3,7 +3,7 @@ package com.example.betterclock
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
-import android.util.AttributeSet
+import android.content.res.ColorStateList
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
@@ -11,76 +11,57 @@ import android.widget.Toolbar
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
 
-class AppView : ViewGroup {
-    private val globals: Globals
+@SuppressLint("ViewConstructor")
+class AppView(val defaultView: String,
+              val updateDefaultView: (String) -> Unit,
+              val globals: Globals,
+              val store: DataStore,
+              context: Context) : ViewGroup(context) {
     private val toolbar: Toolbar = Toolbar(context)
     private val bottomNav: BottomNavigationView = BottomNavigationView(context)
-    val store: DataStore
-    private lateinit var alarmsView: AlarmsView
+    private var alarmsView: AlarmsView
     private val homeView: TextView = TextView(context)
     private val timersView: TextView = TextView(context)
     private var activeView: View? = null
     private var displayWidth: Int = 0
-    private val defaultView: String
-    private val updateDefaultView: (String) -> Unit
 
-    constructor(
-        defaultView: String,
-        updateDefaultView: (String) -> Unit,
-        globals: Globals,
-        store: DataStore,
-        context: Context?,
-        attrs: AttributeSet?,
-        defStyle: Int
-    ) : super(
-        context,
-        attrs,
-        defStyle
-    ) {
-        this.defaultView = defaultView
-        this.updateDefaultView = updateDefaultView
-        this.store = store
-        this.globals = globals
-        init()
-    }
-
-    constructor(
-        defaultView: String,
-        updateDefaultView: (String) -> Unit,
-        globals: Globals,
-        store: DataStore,
-        context: Context?,
-        attrs: AttributeSet?
-    ) : super(context, attrs) {
-        this.defaultView = defaultView
-        this.updateDefaultView = updateDefaultView
-        this.store = store
-        this.globals = globals
-        init()
-    }
-
-    constructor(
-        defaultView: String,
-        updateDefaultView: (String) -> Unit,
-        globals: Globals,
-        store: DataStore,
-        context: Context?
-    ) : super(context) {
-        this.defaultView = defaultView
-        this.updateDefaultView = updateDefaultView
-        this.store = store
-        this.globals = globals
-        init()
-    }
-
-    @SuppressLint("ResourceType")
-    fun init() {
+    init {
         val activity = (context as Activity)
         val dm = activity.resources.displayMetrics
         displayWidth = dm.widthPixels
         toolbar.setBackgroundColor(globals.backgroundColor)
+        toolbar.setTitleTextColor(globals.primaryTextColor.enabled)
         alarmsView = AlarmsView(globals, store.alarmStore(), store, context)
         alarmsView.id = 2
+        val states: Array<IntArray> = arrayOf(arrayOf(
+            android.R.attr.state_enabled,
+            -android.R.attr.state_enabled,
+            android.R.attr.state_focused,
+            -android.R.attr.state_focused,
+            android.R.attr.state_checkable,
+            -android.R.attr.state_checkable,
+            android.R.attr.state_active,
+            -android.R.attr.state_active,
+            android.R.attr.state_checked,
+            -android.R.attr.state_checked,
+            android.R.attr.state_selected,
+            -android.R.attr.state_selected,
+        ).toIntArray())
+        val colors: IntArray = arrayOf(
+            globals.primaryTextColor.enabled,
+            globals.primaryTextColor.disabled,
+            globals.primaryTextColor.enabled,
+            globals.primaryTextColor.disabled,
+            globals.primaryTextColor.enabled,
+            globals.primaryTextColor.disabled,
+            globals.primaryTextColor.enabled,
+            globals.primaryTextColor.disabled,
+            globals.primaryTextColor.checked,
+            globals.primaryTextColor.enabled,
+            globals.primaryTextColor.checked,
+            globals.primaryTextColor.enabled,
+        ).toIntArray()
+        bottomNav.itemTextColor = ColorStateList(states,colors)
         bottomNav.setBackgroundColor(globals.backgroundColor)
         bottomNav.z = alarmsView.z + 1.0F
         homeView.text = "Home"

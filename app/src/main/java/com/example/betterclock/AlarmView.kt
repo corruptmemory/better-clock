@@ -1,5 +1,6 @@
 package com.example.betterclock
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.graphics.*
@@ -9,6 +10,7 @@ import android.view.ViewGroup
 import android.widget.Switch
 import kotlin.math.roundToInt
 
+@SuppressLint("ViewConstructor")
 class AlarmView(
     val globals: Globals,
     val alarm: Alarm,
@@ -52,8 +54,8 @@ class AlarmView(
 
     init {
         val ts = "12:59 pm"
-        paint.typeface = globals.alarmTypeface
-        paint.color = globals.primaryTextColor
+        paint.typeface = globals.alarmTheme.alarmTypeface
+        paint.color = globals.alarmTheme.colors.primaryTextColor.enabled
         paint.textSize = ALARM_TEXT_SIZE
         paint.getTextBounds(ts, 0, ts.length, timeRect)
         paint.typeface = globals.primaryTypeface
@@ -231,7 +233,7 @@ class AlarmView(
     }
 
     private fun drawBackground(canvas: Canvas, height: Float) {
-        paint.color = globals.cardBackgroundColor
+        paint.color = globals.alarmTheme.colors.cardBackgroundColor
         paint.style = Paint.Style.FILL_AND_STROKE
         canvas.drawRoundRect(
             0F,
@@ -245,8 +247,8 @@ class AlarmView(
     }
 
     private fun drawTimeText(canvas: Canvas, x: Float, y: Float) {
-        paint.typeface = globals.alarmTypeface
-        paint.color = globals.primaryTextColor
+        paint.typeface = globals.alarmTheme.alarmTypeface
+        paint.color = globals.alarmTheme.colors.primaryTextColor.enabled
         paint.textSize = ALARM_TEXT_SIZE
         paint.style = Paint.Style.FILL_AND_STROKE
         val timeString = alarm.time.format(globals.is24HourFormat)
@@ -256,7 +258,7 @@ class AlarmView(
     private fun drawScheduleText(canvas: Canvas, x: Float, y: Float) {
         val scheduleText = alarmDays()
         paint.typeface = globals.primaryTypeface
-        paint.color = globals.primaryTextColor
+        paint.color = globals.alarmTheme.colors.primaryTextColor.enabled
         paint.textSize = REGULAR_TEXT_SIZE
         paint.style = Paint.Style.FILL_AND_STROKE
         canvas.drawText(scheduleText, x, y + regularTextHeight, paint)
@@ -264,7 +266,7 @@ class AlarmView(
 
     private fun drawEnabledDays(canvas: Canvas, y: Float) {
         paint.style = Paint.Style.STROKE
-        paint.color = globals.primaryTextColor
+        paint.color = globals.alarmTheme.colors.primaryTextColor.enabled
         paint.typeface = globals.primaryTypeface
         paint.textSize = ENABLED_DAYS_TEXT_SIZE
         enabledDaysRect.top = y.toInt()
@@ -274,9 +276,9 @@ class AlarmView(
         val sx = enabledDaysRect.left.toFloat() + enabledDaysCircleRadius
         val gap = targetWidth / 6F
         for ((i, v) in AlarmDay.values().withIndex()) {
-            paint.color = globals.primaryTextColor
+            paint.color = globals.alarmTheme.colors.primaryTextColor.enabled
             if (alarm.days[i]) {
-                paint.color = globals.primaryTextColor
+                paint.color = globals.alarmTheme.colors.primaryTextColor.enabled
                 paint.style = Paint.Style.FILL_AND_STROKE
             } else {
                 paint.style = Paint.Style.STROKE
@@ -289,7 +291,7 @@ class AlarmView(
             if (alarm.days[i]) {
                 paint.color = Color.DKGRAY
             } else {
-                paint.color = globals.primaryTextColor
+                paint.color = globals.alarmTheme.colors.primaryTextColor.enabled
             }
             canvas.drawText(v.single, 0, 1, tx - lr.exactCenterX(), cy + (lr.height().toFloat()/2F), paint)
             enabledDaysRects[i] = Rect((tx - enabledDaysCircleRadius).toInt(), (cy - enabledDaysCircleRadius).toInt(), (tx + enabledDaysCircleRadius).toInt(), (cy + enabledDaysCircleRadius).toInt())

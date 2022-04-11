@@ -4,14 +4,13 @@ import android.app.Activity
 import android.graphics.Color
 import android.graphics.Typeface
 import android.os.Bundle
-import androidx.compose.material3
-
+import androidx.core.graphics.ColorUtils
 
 class MainActivity : Activity() {
 
     private lateinit var appView: AppView
-
     private lateinit var defaultView: String
+    private var darkTheme: Boolean = false
 
     override fun onSaveInstanceState(outState: Bundle) {
         outState.putString("defaultView", defaultView)
@@ -21,14 +20,7 @@ class MainActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val globals = Globals(
-            primaryTextColor = this.getColor(androidx.appcompat.R.color.primary_text_default_material_light),
-            backgroundColor = this.getColor(androidx.appcompat.R.color.background_material_light),
-            cardBackgroundColor = Color.DKGRAY,
-            primaryTypeface = Typeface.DEFAULT,
-            alarmTypeface = Typeface.DEFAULT,
-            is24HourFormat = android.text.format.DateFormat.is24HourFormat(this)
-        )
+        val globals = createGlobals()
 
         val store = DataStores.inMemoryTestStore()
 
@@ -57,5 +49,45 @@ class MainActivity : Activity() {
         setContentView(appView)
     }
 
+    private fun createGlobals(): Globals {
+        val colors = if (darkTheme) {
+            Colors(
+                primaryTextColor = ColorVariants(
+                    enabled = this.getColor(androidx.appcompat.R.color.primary_text_default_material_dark),
+                    disabled = this.getColor(androidx.appcompat.R.color.primary_text_disabled_material_dark)
+                ),
+                backgroundColor = this.getColor(androidx.appcompat.R.color.background_material_dark),
+                cardBackgroundColor = this.getColor(androidx.cardview.R.color.cardview_light_background),
+                cardShadowStart = this.getColor(androidx.cardview.R.color.cardview_shadow_start_color),
+                cardShadowEnd = this.getColor(androidx.cardview.R.color.cardview_shadow_end_color),
+            )
+        } else {
+            Colors(
+                primaryTextColor = ColorVariants(
+                    enabled = this.getColor(androidx.appcompat.R.color.primary_text_default_material_light),
+                    disabled = this.getColor(androidx.appcompat.R.color.primary_text_disabled_material_light)
+                ),
+                backgroundColor = this.getColor(androidx.appcompat.R.color.background_material_light),
+                cardBackgroundColor = this.getColor(androidx.cardview.R.color.cardview_light_background),
+                cardShadowStart = this.getColor(androidx.cardview.R.color.cardview_shadow_start_color),
+                cardShadowEnd = this.getColor(androidx.cardview.R.color.cardview_shadow_end_color),
+            )
+        }
 
+        return Globals(
+            backgroundColor = colors.backgroundColor,
+            primaryTextColor = NavColorVariants(
+                enabled = ColorUtils.setAlphaComponent(colors.primaryTextColor.enabled, 255),
+                disabled = ColorUtils.setAlphaComponent(colors.primaryTextColor.disabled, 255),
+                checked = ColorUtils.setAlphaComponent(colors.primaryTextColor.enabled, 255),
+            ),
+            primaryTypeface = Typeface.DEFAULT,
+            alarmTheme = AlarmTheme(
+                colors = colors,
+                primaryTypeface = Typeface.DEFAULT,
+                alarmTypeface = Typeface.DEFAULT,
+            ),
+            is24HourFormat = android.text.format.DateFormat.is24HourFormat(this),
+        )
+    }
 }
