@@ -16,6 +16,21 @@ class AlarmView(
     context: Context,
     val collapseDrawable: Drawable = context.getDrawable(R.drawable.ic_collapse)!!
 ) : ViewGroup(context) {
+
+    companion object {
+        val CORNER_RADIUS: Float = 20.dpf
+        val COLLAPSED_HEIGHT: Float = 80.dpf
+        val EXPANDED_HEIGHT: Float = 200.dpf
+        val ALARM_TEXT_SIZE: Float = 30.dpf
+        val ENABLED_DAYS_TEXT_SIZE: Float = 15.dpf
+        val REGULAR_TEXT_SIZE: Float = 15.dpf
+        val ALARM_TEXT_X: Float = 20.dpf
+        val ALARM_TEXT_Y: Float = 10.dpf
+        val SCHEDULE_TEXT_GAP: Float = 10.dpf
+        val ENABLED_DAYS_GAP: Float = 18.dpf
+        val ENABLED_DAYS_MARGIN: Float = ALARM_TEXT_X
+    }
+
     private val paint: Paint = Paint()
     private var expanded: Boolean = false
     private val timeRect: Rect = Rect()
@@ -94,19 +109,7 @@ class AlarmView(
     var onTimeClicked: ((AlarmView) -> Unit)? = null
     var onExpandClicked: ((AlarmView) -> Unit)? = null
 
-    companion object {
-        val CORNER_RADIUS: Float = 20.dpf
-        val COLLAPSED_HEIGHT: Float = 80.dpf
-        val EXPANDED_HEIGHT: Float = 200.dpf
-        val ALARM_TEXT_SIZE: Float = 30.dpf
-        val ENABLED_DAYS_TEXT_SIZE: Float = 15.dpf
-        val REGULAR_TEXT_SIZE: Float = 15.dpf
-        val ALARM_TEXT_X: Float = 20.dpf
-        val ALARM_TEXT_Y: Float = 10.dpf
-        val SCHEDULE_TEXT_GAP: Float = 10.dpf
-        val ENABLED_DAYS_GAP: Float = 18.dpf
-        val ENABLED_DAYS_MARGIN: Float = ALARM_TEXT_X
-    }
+
 
     fun doChangeSize() {
         when (val v = parent) {
@@ -189,31 +192,19 @@ class AlarmView(
         val width: Int
         val height: Int
 
-        //Measure Width
-
-        //Measure Width
         width = if (widthMode == MeasureSpec.EXACTLY) {
-            //Must be this size
             widthSize
         } else if (widthMode == MeasureSpec.AT_MOST) {
-            //Can't be bigger than...
             Math.min(desiredWidth, widthSize)
         } else {
-            //Be whatever you want
             desiredWidth
         }
 
-        //Measure Height
-
-        //Measure Height
         height = if (heightMode == MeasureSpec.EXACTLY) {
-            //Must be this size
             heightSize
         } else if (heightMode == MeasureSpec.AT_MOST) {
-            //Can't be bigger than...
             Math.min(desiredHeight, heightSize)
         } else {
-            //Be whatever you want
             desiredHeight
         }
 
@@ -225,7 +216,6 @@ class AlarmView(
 
         enabledDaysRect.right = width - ENABLED_DAYS_MARGIN.toInt()
 
-        //MUST CALL THIS
         setMeasuredDimension(width, height)
     }
 

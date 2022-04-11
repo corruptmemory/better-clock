@@ -1,9 +1,5 @@
 package com.example.betterclock
 
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.decodeFromString
 import java.time.LocalTime
 import java.util.*
 
@@ -17,7 +13,6 @@ enum class AlarmDay(val idx: Int, val short: String, val long: String, val singl
     SATURDAY(6, "Sat", "Saturday", "S"),
 }
 
-@Serializable
 class AlarmTime(val hour: Int, val minute: Int) {
 
     fun timeRemaining(from: LocalTime = LocalTime.now()): Int {
@@ -53,7 +48,6 @@ class AlarmTime(val hour: Int, val minute: Int) {
     }
 }
 
-@Serializable
 class Alarm(
     val id: String,
     var time: AlarmTime,
@@ -106,19 +100,11 @@ class Alarm(
         return r
     }
 
-    fun toJson(): String {
-        return Json.encodeToString(this)
-    }
-
     companion object {
         fun genAlarmID(): String {
             val uuid = UUID.randomUUID()
             val now = System.nanoTime()
             return "alarm-$uuid-$now"
-        }
-
-        fun fromJson(jsonStr: String): Alarm {
-            return Json.decodeFromString(jsonStr)
         }
 
         fun fromParts(
