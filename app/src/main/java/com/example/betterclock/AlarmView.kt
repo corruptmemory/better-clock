@@ -3,12 +3,14 @@ package com.example.betterclock
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
-import android.graphics.*
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Paint
+import android.graphics.Rect
 import android.graphics.drawable.Drawable
 import android.view.MotionEvent
 import android.view.ViewGroup
 import android.widget.Switch
-import kotlin.math.roundToInt
 
 @SuppressLint("ViewConstructor")
 class AlarmView(
@@ -16,7 +18,7 @@ class AlarmView(
     val alarm: Alarm,
     val alarmStore: AlarmStore,
     context: Context,
-    val collapseDrawable: Drawable = context.getDrawable(R.drawable.ic_collapse)!!
+    val collapseDrawable: Drawable,
 ) : ViewGroup(context) {
 
     companion object {
@@ -72,15 +74,6 @@ class AlarmView(
         enabledDaysHeight = enabledDaysRect.height()
         timeRect.offsetTo(ALARM_TEXT_X.toInt(), ALARM_TEXT_Y.toInt())
         this.setWillNotDraw(false)
-        val m = arrayOf(
-            -1F, 0F, 0F, 0F, 255F,
-            0F, -1F, 0F, 0F, 255F,
-            0F, 0F, -1F, 0F, 255F,
-            0F, 0F, 0F, 1F, 0F
-        )
-        val cm = ColorMatrix(m.toFloatArray())
-        val cf = ColorMatrixColorFilter(cm)
-        collapseDrawable.colorFilter = cf
         enabledSwitch.isChecked = alarm.enabled
         enabledSwitch.setOnClickListener { _ -> this.toggleEnable() }
         addView(enabledSwitch)
@@ -278,7 +271,6 @@ class AlarmView(
         for ((i, v) in AlarmDay.values().withIndex()) {
             paint.color = globals.alarmTheme.colors.primaryTextColor.enabled
             if (alarm.days[i]) {
-                paint.color = globals.alarmTheme.colors.primaryTextColor.enabled
                 paint.style = Paint.Style.FILL_AND_STROKE
             } else {
                 paint.style = Paint.Style.STROKE
@@ -289,7 +281,7 @@ class AlarmView(
             paint.getTextBounds(v.single,0, 1, lr)
             paint.style = Paint.Style.FILL_AND_STROKE
             if (alarm.days[i]) {
-                paint.color = Color.DKGRAY
+                paint.color = globals.alarmTheme.colors.backgroundColor
             } else {
                 paint.color = globals.alarmTheme.colors.primaryTextColor.enabled
             }

@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.res.ColorStateList
+import android.graphics.Color
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
@@ -12,11 +13,13 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 
 
 @SuppressLint("ViewConstructor")
-class AppView(val defaultView: String,
-              val updateDefaultView: (String) -> Unit,
-              val globals: Globals,
-              val store: DataStore,
-              context: Context) : ViewGroup(context) {
+class AppView(
+    val defaultView: String,
+    val updateDefaultView: (String) -> Unit,
+    val globals: Globals,
+    val store: DataStore,
+    context: Context
+) : ViewGroup(context) {
     private val toolbar: Toolbar = Toolbar(context)
     private val bottomNav: BottomNavigationView = BottomNavigationView(context)
     private var alarmsView: AlarmsView
@@ -33,35 +36,23 @@ class AppView(val defaultView: String,
         toolbar.setTitleTextColor(globals.primaryTextColor.enabled)
         alarmsView = AlarmsView(globals, store.alarmStore(), store, context)
         alarmsView.id = 2
-        val states: Array<IntArray> = arrayOf(arrayOf(
-            android.R.attr.state_enabled,
-            -android.R.attr.state_enabled,
-            android.R.attr.state_focused,
-            -android.R.attr.state_focused,
-            android.R.attr.state_checkable,
-            -android.R.attr.state_checkable,
-            android.R.attr.state_active,
-            -android.R.attr.state_active,
-            android.R.attr.state_checked,
-            -android.R.attr.state_checked,
-            android.R.attr.state_selected,
-            -android.R.attr.state_selected,
-        ).toIntArray())
+        val states: Array<IntArray> = arrayOf(
+            arrayOf(
+                android.R.attr.state_enabled,
+                android.R.attr.state_checked,
+            ).toIntArray(),
+            arrayOf(
+                android.R.attr.state_enabled,
+                -android.R.attr.state_checked,
+            ).toIntArray()
+        )
         val colors: IntArray = arrayOf(
-            globals.primaryTextColor.enabled,
-            globals.primaryTextColor.disabled,
-            globals.primaryTextColor.enabled,
-            globals.primaryTextColor.disabled,
-            globals.primaryTextColor.enabled,
-            globals.primaryTextColor.disabled,
-            globals.primaryTextColor.enabled,
-            globals.primaryTextColor.disabled,
-            globals.primaryTextColor.checked,
-            globals.primaryTextColor.enabled,
             globals.primaryTextColor.checked,
             globals.primaryTextColor.enabled,
         ).toIntArray()
-        bottomNav.itemTextColor = ColorStateList(states,colors)
+        val c = bottomNav.itemTextColor
+        bottomNav.itemTextColor = ColorStateList(states, colors)
+        val c1 = bottomNav.itemTextColor
         bottomNav.setBackgroundColor(globals.backgroundColor)
         bottomNav.z = alarmsView.z + 1.0F
         homeView.text = "Home"
@@ -149,7 +140,12 @@ class AppView(val defaultView: String,
             MeasureSpec.makeMeasureSpec(contentWidth, MeasureSpec.AT_MOST),
             MeasureSpec.makeMeasureSpec(remainingHeight, MeasureSpec.AT_MOST)
         )
-        activeView!!.layout(contentLeft, toolbarHeight, contentRight, contentHeight - bottomNavHeight)
+        activeView!!.layout(
+            contentLeft,
+            toolbarHeight,
+            contentRight,
+            contentHeight - bottomNavHeight
+        )
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {

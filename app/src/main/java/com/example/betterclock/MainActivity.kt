@@ -4,13 +4,14 @@ import android.app.Activity
 import android.graphics.Color
 import android.graphics.Typeface
 import android.os.Bundle
+import androidx.core.content.ContextCompat
 import androidx.core.graphics.ColorUtils
 
 class MainActivity : Activity() {
 
     private lateinit var appView: AppView
     private lateinit var defaultView: String
-    private var darkTheme: Boolean = false
+    private var darkTheme: Boolean = true
 
     override fun onSaveInstanceState(outState: Bundle) {
         outState.putString("defaultView", defaultView)
@@ -53,24 +54,24 @@ class MainActivity : Activity() {
         val colors = if (darkTheme) {
             Colors(
                 primaryTextColor = ColorVariants(
-                    enabled = this.getColor(androidx.appcompat.R.color.primary_text_default_material_dark),
-                    disabled = this.getColor(androidx.appcompat.R.color.primary_text_disabled_material_dark)
+                    enabled = ContextCompat.getColor(this, androidx.appcompat.R.color.primary_text_default_material_dark),
+                    disabled = ContextCompat.getColor(this, androidx.appcompat.R.color.primary_text_disabled_material_dark)
                 ),
-                backgroundColor = this.getColor(androidx.appcompat.R.color.background_material_dark),
-                cardBackgroundColor = this.getColor(androidx.cardview.R.color.cardview_light_background),
-                cardShadowStart = this.getColor(androidx.cardview.R.color.cardview_shadow_start_color),
-                cardShadowEnd = this.getColor(androidx.cardview.R.color.cardview_shadow_end_color),
+                backgroundColor = ContextCompat.getColor(this, androidx.appcompat.R.color.background_material_dark),
+                cardBackgroundColor = ContextCompat.getColor(this, androidx.cardview.R.color.cardview_dark_background),
+                cardShadowStart = ContextCompat.getColor(this, androidx.cardview.R.color.cardview_shadow_start_color),
+                cardShadowEnd = ContextCompat.getColor(this, androidx.cardview.R.color.cardview_shadow_end_color),
             )
         } else {
             Colors(
                 primaryTextColor = ColorVariants(
-                    enabled = this.getColor(androidx.appcompat.R.color.primary_text_default_material_light),
-                    disabled = this.getColor(androidx.appcompat.R.color.primary_text_disabled_material_light)
+                    enabled = ContextCompat.getColor(this, androidx.appcompat.R.color.primary_text_default_material_light),
+                    disabled = ContextCompat.getColor(this, androidx.appcompat.R.color.primary_text_disabled_material_light)
                 ),
-                backgroundColor = this.getColor(androidx.appcompat.R.color.background_material_light),
-                cardBackgroundColor = this.getColor(androidx.cardview.R.color.cardview_light_background),
-                cardShadowStart = this.getColor(androidx.cardview.R.color.cardview_shadow_start_color),
-                cardShadowEnd = this.getColor(androidx.cardview.R.color.cardview_shadow_end_color),
+                backgroundColor = ContextCompat.getColor(this, androidx.appcompat.R.color.background_material_light),
+                cardBackgroundColor = ContextCompat.getColor(this, androidx.cardview.R.color.cardview_light_background),
+                cardShadowStart = ContextCompat.getColor(this, androidx.cardview.R.color.cardview_shadow_start_color),
+                cardShadowEnd = ContextCompat.getColor(this, androidx.cardview.R.color.cardview_shadow_end_color),
             )
         }
 

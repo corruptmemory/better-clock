@@ -2,8 +2,11 @@ package com.example.betterclock
 
 import android.app.TimePickerDialog
 import android.content.Context
+import android.graphics.drawable.Drawable
 import android.widget.LinearLayout
 import android.widget.ScrollView
+import androidx.core.content.ContextCompat
+import androidx.core.graphics.drawable.DrawableCompat
 
 class AlarmEntry(
     var alarm: Alarm,
@@ -23,14 +26,16 @@ class AlarmsView(
     val globals: Globals,
     val alarmStore: AlarmStore,
     store: DataStore,
-    context: Context
+    context: Context,
+    rawCollapseDrawable: Drawable = DrawableCompat.wrap(ContextCompat.getDrawable(context, R.drawable.ic_collapse)!!),
 ) : ScrollView(context) {
 
     private val ll: LinearLayout
+    private val collapseDrawable: Drawable
 
     private fun buildViews(entries: Array<AlarmEntry>) {
         for (a in entries) {
-            a.view = AlarmView(globals, a.alarm, alarmStore, context)
+            a.view = AlarmView(globals, a.alarm, alarmStore, context, collapseDrawable)
             a.view.onTimeClicked = { v ->
                 for (cv in entries) {
                     if (cv.view != v) {
@@ -59,6 +64,8 @@ class AlarmsView(
     init {
         val alarms = store.alarmStore().list()
         val entries = Array(alarms.size) { i -> AlarmEntry(alarms[i]) }
+        collapseDrawable = rawCollapseDrawable
+        collapseDrawable.setTint(globals.alarmTheme.colors.primaryTextColor.enabled)
         buildViews(entries)
         setBackgroundColor(globals.backgroundColor)
         ll = LinearLayout(context)
