@@ -23,7 +23,8 @@ class AlarmEntry(
 }
 
 class AlarmsView(
-    val globals: Globals,
+    val theme: AlarmsViewTheme,
+    val is24HourFormat: Boolean,
     val alarmStore: AlarmStore,
     store: DataStore,
     context: Context,
@@ -35,7 +36,7 @@ class AlarmsView(
 
     private fun buildViews(entries: Array<AlarmEntry>) {
         for (a in entries) {
-            a.view = AlarmView(globals, a.alarm, alarmStore, context, collapseDrawable)
+            a.view = AlarmView(theme.alarmTheme, is24HourFormat, a.alarm, alarmStore, context, collapseDrawable)
             a.view.onTimeClicked = { v ->
                 for (cv in entries) {
                     if (cv.view != v) {
@@ -46,7 +47,7 @@ class AlarmsView(
                 val tp = TimePickerDialog(context,
                     { _, h: Int, m: Int ->
                         v.setTime(AlarmTime(h, m))
-                    }, v.alarm.time.hour, v.alarm.time.minute, globals.is24HourFormat
+                    }, v.alarm.time.hour, v.alarm.time.minute, is24HourFormat
                 )
                 tp.show()
             }
@@ -65,9 +66,9 @@ class AlarmsView(
         val alarms = store.alarmStore().list()
         val entries = Array(alarms.size) { i -> AlarmEntry(alarms[i]) }
         collapseDrawable = rawCollapseDrawable
-        collapseDrawable.setTint(globals.alarmTheme.colors.primaryTextColor.enabled)
+        collapseDrawable.setTint(theme.alarmTheme.colors.primaryTextColor.enabled)
         buildViews(entries)
-        setBackgroundColor(globals.backgroundColor)
+        setBackgroundColor(theme.backgroundColor)
         ll = LinearLayout(context)
         addView(ll)
         ll.orientation = LinearLayout.VERTICAL

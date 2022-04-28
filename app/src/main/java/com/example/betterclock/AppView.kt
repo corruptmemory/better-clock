@@ -34,7 +34,7 @@ class AppView(
         displayWidth = dm.widthPixels
         toolbar.setBackgroundColor(globals.backgroundColor)
         toolbar.setTitleTextColor(globals.primaryTextColor.enabled)
-        alarmsView = AlarmsView(globals, store.alarmStore(), store, context)
+        alarmsView = AlarmsView(globals.alarmsTheme(), globals.is24HourFormat, store.alarmStore(), store, context)
         alarmsView.id = 2
         val states: Array<IntArray> = arrayOf(
             arrayOf(

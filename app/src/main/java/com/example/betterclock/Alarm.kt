@@ -53,11 +53,12 @@ class Alarm(
     var time: AlarmTime,
     var label: String?,
     var enabled: Boolean,
-    val days: Array<Boolean>
+    val days: Array<Boolean>,
+    val alarmSelection: String?
 ) {
 
     fun clone(): Alarm {
-        return Alarm(id, time, label, enabled, days.clone())
+        return Alarm(id, time, label, enabled, days.clone(), alarmSelection)
     }
 
     fun enableDay(day: AlarmDay): Unit {
@@ -112,17 +113,19 @@ class Alarm(
             time: LocalTime,
             label: String?,
             enabled: Boolean,
-            days: Array<Boolean>
+            days: Array<Boolean>,
+            alarmSelection: String?
         ): Alarm =
-            Alarm(id, AlarmTime.fromLocalTime(time), label, enabled, days.clone())
+            Alarm(id, AlarmTime.fromLocalTime(time), label, enabled, days.clone(), alarmSelection)
 
-        fun empty(time: LocalTime, id: String = genAlarmID()): Alarm =
+        fun empty(time: LocalTime, id: String = genAlarmID(), alarmSelection: String? = null): Alarm =
             Alarm(
                 id = id,
                 time = AlarmTime.fromLocalTime(time),
                 label = null,
                 enabled = true,
-                days = Array(AlarmDay.values().size) { _ -> true })
+                days = Array(AlarmDay.values().size) { _ -> true },
+                alarmSelection = alarmSelection)
     }
 }
 

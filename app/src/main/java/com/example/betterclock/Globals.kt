@@ -29,10 +29,22 @@ class AlarmTheme(
     val alarmTypeface: Typeface,
 )
 
+class AlarmsViewTheme(
+    val alarmTheme: AlarmTheme,
+    val backgroundColor: Int,
+)
+
 class Globals(
     val primaryTypeface: Typeface,
     val primaryTextColor: NavColorVariants,
     val backgroundColor: Int,
     val alarmTheme: AlarmTheme,
     val is24HourFormat: Boolean,
-)
+) {
+    fun alarmsTheme(): AlarmsViewTheme {
+        return AlarmsViewTheme(
+            alarmTheme = alarmTheme,
+            backgroundColor = backgroundColor,
+        )
+    }
+}
