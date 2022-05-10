@@ -54,7 +54,7 @@ class Alarm(
     var label: String?,
     var enabled: Boolean,
     val days: Array<Boolean>,
-    val alarmSelection: String?
+    var alarmSelection: String?
 ) {
 
     fun clone(): Alarm {

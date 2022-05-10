@@ -3,17 +3,17 @@ package com.example.betterclock
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
-import android.content.Intent
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.Rect
 import android.graphics.drawable.Drawable
-import android.media.RingtoneManager
-import android.net.Uri
 import android.util.Log
-import android.view.*
+import android.view.Gravity
+import android.view.MotionEvent
+import android.view.ViewGroup
+import android.widget.PopupWindow
 import android.widget.Switch
-import androidx.activity.result.contract.ActivityResultContract
+import android.widget.TextView
 
 
 @SuppressLint("ViewConstructor")
@@ -177,34 +177,18 @@ class AlarmView(
                     }
                 }
                 if (alarmSoundRect.contains(x,y)) {
-                    val ringtonePicker = object: ActivityResultContract<Int, Uri?>() {
-                        override fun createIntent(context: Context, ringtoneType: Int) =
-                            Intent(RingtoneManager.ACTION_RINGTONE_PICKER).apply {
-                                putExtra(RingtoneManager.EXTRA_RINGTONE_TYPE, ringtoneType)
-                            }
-
-                        override fun parseResult(resultCode: Int, result: Intent?) : Uri? {
-                            if (resultCode != Activity.RESULT_OK) {
-                                return null
-                            }
-                            val result: Uri? = result?.getParcelableExtra(RingtoneManager.EXTRA_RINGTONE_PICKED_URI)
-                            Log.i("BC","result: $result")
-                            return result
-                        }
+                    Log.i("BC", "Showing popup!")
+                    val tv = TextView(context)
+                    tv.setBackgroundColor(theme.colors.backgroundColor)
+                    tv.setTextColor(theme.colors.primaryTextColor.enabled)
+                    tv.text = "Hello there!"
+                    val popupWindow = PopupWindow(tv, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
+                    tv.setOnClickListener { v ->
+                        alarm.alarmSelection = "Nice!"
+                        this.invalidate()
+                        popupWindow.dismiss()
                     }
-
-                    Log.i("BC", "Supposed to picking a ringtone")
-
-                    val rt = ringtonePicker.getSynchronousResult(context, RingtoneManager.TYPE_NOTIFICATION)
-                    Log.i("BC", "rt: $rt")
-
-//                    val intent = Intent(RingtoneManager.ACTION_RINGTONE_PICKER)
-//                    intent.putExtra(
-//                        RingtoneManager.EXTRA_RINGTONE_TYPE,
-//                        RingtoneManager.TYPE_NOTIFICATION
-//                    )
-//                    intent.putExtra(RingtoneManager.EXTRA_RINGTONE_TITLE, "Select Tone")
-//                    intent.putExtra(RingtoneManager.EXTRA_RINGTONE_EXISTING_URI, null as Uri?)
+                    popupWindow.showAtLocation(this, Gravity.CENTER, 0, 0)
                 }
             }
         }
