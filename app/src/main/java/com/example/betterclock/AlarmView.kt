@@ -9,9 +9,11 @@ import android.graphics.Paint
 import android.graphics.Rect
 import android.graphics.drawable.Drawable
 import android.media.RingtoneManager
-import android.view.MotionEvent
-import android.view.ViewGroup
+import android.net.Uri
+import android.util.Log
+import android.view.*
 import android.widget.Switch
+import androidx.activity.result.contract.ActivityResultContract
 
 
 @SuppressLint("ViewConstructor")
@@ -116,8 +118,6 @@ class AlarmView(
     var onTimeClicked: ((AlarmView) -> Unit)? = null
     var onExpandClicked: ((AlarmView) -> Unit)? = null
 
-
-
     fun doChangeSize() {
         when (val v = parent) {
             is ViewGroup -> {
@@ -177,15 +177,34 @@ class AlarmView(
                     }
                 }
                 if (alarmSoundRect.contains(x,y)) {
-                    val intent = Intent(RingtoneManager.ACTION_RINGTONE_PICKER)
-                    intent.putExtra(
-                        RingtoneManager.EXTRA_RINGTONE_TYPE,
-                        RingtoneManager.TYPE_NOTIFICATION
-                    )
-                    intent.putExtra(RingtoneManager.EXTRA_RINGTONE_TITLE, "Select Tone")
-                    intent.putExtra(RingtoneManager.EXTRA_RINGTONE_EXISTING_URI, null as Uri?)
-                    startActionModeForChild(intent, )
-                    this.startActivityForResult(intent, 5)
+                    val ringtonePicker = object: ActivityResultContract<Int, Uri?>() {
+                        override fun createIntent(context: Context, ringtoneType: Int) =
+                            Intent(RingtoneManager.ACTION_RINGTONE_PICKER).apply {
+                                putExtra(RingtoneManager.EXTRA_RINGTONE_TYPE, ringtoneType)
+                            }
+
+                        override fun parseResult(resultCode: Int, result: Intent?) : Uri? {
+                            if (resultCode != Activity.RESULT_OK) {
+                                return null
+                            }
+                            val result: Uri? = result?.getParcelableExtra(RingtoneManager.EXTRA_RINGTONE_PICKED_URI)
+                            Log.i("BC","result: $result")
+                            return result
+                        }
+                    }
+
+                    Log.i("BC", "Supposed to picking a ringtone")
+
+                    val rt = ringtonePicker.getSynchronousResult(context, RingtoneManager.TYPE_NOTIFICATION)
+                    Log.i("BC", "rt: $rt")
+
+//                    val intent = Intent(RingtoneManager.ACTION_RINGTONE_PICKER)
+//                    intent.putExtra(
+//                        RingtoneManager.EXTRA_RINGTONE_TYPE,
+//                        RingtoneManager.TYPE_NOTIFICATION
+//                    )
+//                    intent.putExtra(RingtoneManager.EXTRA_RINGTONE_TITLE, "Select Tone")
+//                    intent.putExtra(RingtoneManager.EXTRA_RINGTONE_EXISTING_URI, null as Uri?)
                 }
             }
         }
@@ -233,6 +252,10 @@ class AlarmView(
         collapseDrawable.bounds = expandoRect
 
         enabledDaysRect.right = width - ENABLED_DAYS_MARGIN.toInt()
+
+        alarmSoundRect.right = width
+        vibrateRect.right = width
+        deleteRect.right = width
 
         setMeasuredDimension(width, height)
     }

@@ -12,7 +12,7 @@ object DataStores {
     private val testIms: DataStore by lazy {
         val ims = InMemoryDataStore()
         val a = ims.alarmStore()
-        for (i in 0..15) {
+        for (i in 0..1000) {
             a.addOrUpdate(Alarm.empty(LocalTime.now()))
         }
         ims
